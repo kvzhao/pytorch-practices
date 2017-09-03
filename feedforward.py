@@ -31,9 +31,22 @@ print (net.fc2)
 
 dummy_batch = 5
 dummy_x = Variable(torch.randn(dummy_batch, input_size))
+dummy_y = Variable(torch.randn(dummy_batch, num_classes))
 
 print (net(dummy_x))
 
-err_measure = nn.CrossEntropyLoss()
+#err_measure = nn.CrossEntropyLoss()
+err_measure = nn.MSELoss()
 print (net.parameters())
 optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)  
+
+for _ in range(100):
+    def closure():
+        # clear grads
+        optimizer.zero_grad()
+        out = net(dummy_x)
+        loss = err_measure(out, dummy_y)
+        loss.backward()
+        return loss
+    loss = optimizer.step(closure=closure)
+    print ('loss = {}'.format(loss.data[0]))
